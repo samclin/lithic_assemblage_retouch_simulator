@@ -28,7 +28,7 @@ doParallel::registerDoParallel(cl = my.cluster)
 
 
 
-assemblage_simulator <- function (exp_data, iteration=10000, max.n, prob_retouch, select_strength, select_variable, retouch_method, n_retouch) {
+assemblage_simulator <- function (exp_data, iteration=10000, max.n, prob_retouch, select_strength, select_variable, retouch_method, n_retouch, retouch_penalty) {
   
   
   sim_output <- data.frame("n"=numeric(), "p_retouch"=numeric(), "time"=numeric(), "median_retouch_size"=numeric(), "median_nonretouch_size"=numeric(), "median_retouch_intensity"=numeric())  
@@ -53,6 +53,8 @@ assemblage_simulator <- function (exp_data, iteration=10000, max.n, prob_retouch
     } else {
       select_prob <-  selection_measure^select_strength
     }
+    
+    select_prob[usable_flakes$retouched == "Y"] <- select_prob[usable_flakes$retouched == "Y"] * retouch_penalty
     
     if (retouch_method == "proportion") {
       n_selected <- round(prob_retouch * (nrow(to_add)) )
@@ -112,6 +114,7 @@ ui <- fluidPage(
   
   titlePanel("A Base Model of Lithic Assemblage Accumulation"),
   h4("Sam Lin, University of Wollongong (samlin@uow.edu.au)"),
+  h4(tags$a(href="https://github.com/samclin/lithic_assemblage_retouch_simulator", "RShiny source code", target="_blank")),
   
   sidebarLayout(
     
@@ -124,8 +127,7 @@ ui <- fluidPage(
                   min=0,
                   max=5,
                   value=0,
-                  step=0.1
-                   ),
+                  step=0.1),
       
       selectInput(inputId="select_variable",
                   label="Artefact selection variable :",
@@ -134,6 +136,13 @@ ui <- fluidPage(
                                "Max. Width" = "MAXWIDTH",
                                "Max. Thickness" = "MAXTHICK"),
                   selected = "WEIGHT"),
+      
+      sliderInput(inputId="retouch_penalty",
+                  label="Retouched artefact penalty :",
+                  min=0,
+                  max=1,
+                  value=1,
+                  step=0.1),
       
       selectInput(inputId="retouch_method", label="Retouch allocation method:",
         choices = list("Fixed proportion" = "proportion",
@@ -164,9 +173,10 @@ ui <- fluidPage(
       h4("Parameter descriptions:"),
       p(span("Selection strength (k):", style="color:blue"), "Controls how strongly larger artefacts are preferentially selected for retouch. At k = 0, all artefacts have an equal probability of selection irrespective of size. Increasing k progressively strengthens preferential selection of larger artefacts. Values of k = 1 produce linear size-based selection, while larger values increasingly concentrate selection on the largest available artefacts."),
       p(span("Artefact selection variable:", style="color:blue"), "The artefact attribute used to determine selection probabilities. Selection can be based on weight, maximum length, maximum width, or maximum thickness. This allows evaluation of whether the predicted relationship emerges under different assumptions about the size characteristics influencing flake selection."),
-      p(span("Retouch allocation method:", style="color:blue"), "Determines how many flakes are selected for retouch during each reduction event. Under 'Fixed proportion', the number selected scales with the number of flakes produced during that event. Under 'Fixed number', a specified number of flakes is selected during each event, irrespective of event size, up to the number of flakes produced in that event."),
-      p(span("Proportion of flakes retouched per event:", style="color:blue"), "Used when the 'Fixed proportion' retouch allocation method is selected. Specifies the proportion of flakes chosen for retouch during each simulated reduction event. Selected flakes remain in the assemblage after use and may be selected again during subsequent events."),
-      p(span("Number of flakes retouched per event:", style="color:blue"), "Used when the 'Fixed number' retouch allocation method is selected. Specifies the number of flakes chosen for retouch during each simulated reduction event, irrespective of the number of flakes produced."),
+      p(span("Retouched artefact penalty:", style="color:blue"), "Reduces the probability of selecting artefacts that have already been retouched. A value of 1 applies no penalty, meaning retouched and unretouched artefacts are equally likely to be selected. Lower values progressively favour fresh, unretouched artefacts. A value of 0 prevents previously retouched artefacts from being selected again."),
+      p(span("Retouch allocation method:", style="color:blue"), "Determines how many flakes are selected for retouch during each reduction event. Under 'Fixed proportion', the number selected scales with the number of flakes produced during that event. Under 'Fixed number', a specified number of flakes is selected during each event, up to the number of flakes produced."),
+      p(span("Proportion of flakes retouched per event:", style="color:blue"), "Used only when the 'Fixed proportion' allocation method is selected. Specifies the proportion of flakes selected for retouch during each simulated reduction event."),
+      p(span("Number of flakes retouched per event:", style="color:blue"), "Used only when the 'Fixed number' allocation method is selected. Specifies the target number of flakes selected for retouch during each simulated reduction event."),
       p(span("Maximum assemblage size:", style="color:blue"), "The total number of artefacts accumulated before the simulation stops. This represents the final assemblage size."),
       p(span("Number of unique assemblages:", style="color:blue"), "The number of independent assemblages simulated. Increasing this value produces more replicate simulations but increases computation time."),
       p(span("Output:", style="color:blue"), "Displays the relationship between assemblage size and retouch frequency as either a scatter plot, binned boxplot, or log-transformed scatter plot. The log-transformed option displays a linear regression fitted to log-transformed values.")
@@ -179,8 +189,11 @@ ui <- fluidPage(
       div("This is done by randomly selecting a complete reduction set from an experimental database (Lin et al. 2015, 2016). 
       Each reduction set consists of a number of artifacts (flakes+debris) removed from a core at varying levels of reduction intensity. These reduction sets exhibit the rightly-skewed size distribution that is typical of lithic reduction products (Lin et al. 2016).
       Note that the database only contains aritacts >= 25 mm in maximum length."),
+      
+      br(),
+      
       strong("2. Select and retouch flakes"),
-      div("Following flake production, a subset of artefacts present in the accumulated assemblage is selected for retouch. Selection probabilities depend on the chosen artefact attribute (weight, length, width, or thickness) and the specified selection strength (k). Retouched artefacts remain within the assemblage and may be selected again during subsequent events. The number of flakes selected may be determined either as a fixed proportion of flakes produced during the event or as a fixed number of flakes per event."),
+      div("Following flake production, a subset of artefacts present in the accumulated assemblage is selected for retouch. Selection probabilities depend on the chosen artefact attribute (weight, length, width, or thickness), the specified selection strength (k), and any penalty applied to previously retouched artefacts, allowing evaluation of preferences for fresh versus previously modified pieces."),
       
       br(),
       
@@ -224,13 +237,14 @@ server <- function(input, output) {
     max.n <- input$max_accumulation
     retouch_method <- input$retouch_method
     n_retouch <- input$n_retouch
+    retouch_penalty<-input$retouch_penalty
     
     sim_output <- foreach(l=1:input$n_assemblages, 
                           .combine='rbind', 
                           .export = c("assemblage_simulator", 
                                       "exp_data")) %dopar% {
                                         
-                                        assemblage_simulator(exp_data, iteration=1000, max.n, prob_retouch, select_strength, select_variable, retouch_method, n_retouch)
+                                        assemblage_simulator(exp_data, iteration=1000, max.n, prob_retouch, select_strength, select_variable, retouch_method, n_retouch, retouch_penalty)
                                         
                                       }
     
