@@ -32,8 +32,8 @@ The model simulates lithic assemblage accumulation by repeatedly:
 
 The application allows users to explore how assumptions about artefact selection and retouch behaviour influence assemblage-level retouch frequencies.
 
-##Version history
-#Version 2.0 (current)
+## Version history
+# Version 2.0 (current)
 Substantial revision of the original model to improve transparency and evaluate the sensitivity of model outcomes to alternative assumptions.
 
 New features
@@ -57,7 +57,7 @@ Changes
 * Included multiple artefact size attributes as selection variable rather than weight alone.
 * Revised output metrics to reflect the selected attribute rather than a fixed weight measure.
 
-#Version 1.0
+# Version 1.0
 The original model presented at the 2023 annual meeting of the Society for American Archaeology (Portland, OR) and the 2024 Computer Applications and Quantitative Methods in Archaeology meeting (Auckland, NZ).
 
 Original features
