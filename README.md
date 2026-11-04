@@ -43,12 +43,12 @@ New features
   * Maximum width
   * Maximum thickness
 * Continuous selection strength parameter (k), where:
- * k=0 produces uniform selection
- * k=1 produces linear size-based selection
- * k=2 produces cubic size-based selection
+  * k=0 produces uniform selection
+  * k=1 produces linear size-based selection
+  * k=2 produces cubic size-based selection
 * Alternative retouch allocation methods:
- * Fixed proportion of flakes produced per event
- * Fixed number of flakes selected per event
+  * Fixed proportion of flakes produced per event
+  * Fixed number of flakes selected per event
 * Expanded parameter descriptions and model documentation.
 * Full source code made publicaly available.
 
@@ -63,9 +63,9 @@ The original model presented at the 2023 annual meeting of the Society for Ameri
 Original features
 * Weight-based artefact selection
 * Three fixed selection functions:
- * Uniform
- * Linear
- * Cubic
+  * Uniform
+  * Linear
+  * Cubic
 * Retouch allocation based on a fixed proportion of flakes produced per event. 
 
 # References
