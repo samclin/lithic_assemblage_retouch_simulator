@@ -162,7 +162,7 @@ ui <- fluidPage(
                                  "Scatter plot log scale" = 3), selected = 1), br(),
       
       h4("Parameter descriptions:"),
-      p(span("Selection strength (k):", style="color:blue"), "Controls how strongly larger artefacts are preferentially selected for retouch. At k=0, all artefacts have an equal chance of being selected, irrespective of size. Increasing k progressively increases the probability that larger artefacts will be selected, producing stronger size-biased selection."),
+      p(span("Selection strength (k):", style="color:blue"), "Controls how strongly larger artefacts are preferentially selected for retouch. At k = 0, all artefacts have an equal probability of selection irrespective of size. Increasing k progressively strengthens preferential selection of larger artefacts. Values of k = 1 produce linear size-based selection, while larger values increasingly concentrate selection on the largest available artefacts."),
       p(span("Artefact selection variable:", style="color:blue"), "The artefact attribute used to determine selection probabilities. Selection can be based on weight, maximum length, maximum width, or maximum thickness. This allows evaluation of whether the predicted relationship emerges under different assumptions about the size characteristics influencing flake selection."),
       p(span("Retouch allocation method:", style="color:blue"), "Determines how many flakes are selected for retouch during each reduction event. Under 'Fixed proportion', the number selected scales with the number of flakes produced during that event. Under 'Fixed number', a specified number of flakes is selected during each event, irrespective of event size, up to the number of flakes produced in that event."),
       p(span("Proportion of flakes retouched per event:", style="color:blue"), "Used when the 'Fixed proportion' retouch allocation method is selected. Specifies the proportion of flakes chosen for retouch during each simulated reduction event. Selected flakes remain in the assemblage after use and may be selected again during subsequent events."),
@@ -178,7 +178,7 @@ ui <- fluidPage(
       strong("1. A set of flakes are produced from a core"),
       div("This is done by randomly selecting a complete reduction set from an experimental database (Lin et al. 2015, 2016). 
       Each reduction set consists of a number of artifacts (flakes+debris) removed from a core at varying levels of reduction intensity. These reduction sets exhibit the rightly-skewed size distribution that is typical of lithic reduction products (Lin et al. 2016).
-      Note that the database only contain aritacts >= 25 mm in maximum length."),
+      Note that the database only contains aritacts >= 25 mm in maximum length."),
       strong("2. Select and retouch flakes"),
       div("Following flake production, a subset of artefacts present in the accumulated assemblage is selected for retouch. Selection probabilities depend on the chosen artefact attribute (weight, length, width, or thickness) and the specified selection strength (k). Retouched artefacts remain within the assemblage and may be selected again during subsequent events. The number of flakes selected may be determined either as a fixed proportion of flakes produced during the event or as a fixed number of flakes per event."),
       
