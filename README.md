@@ -28,9 +28,11 @@ The model simulates lithic assemblage accumulation by repeatedly:
  1. Sampling experimentally derived reduction events.
  2. Adding artefacts to an accumulating assemblage.
  3. Selecting artefacts for retouch according to a user-specified selection variable and selection strength.
- 4. Returning retouched artefacts to the assemblage, allowing repeated reuse through time.
+ 4. Applying any penalty associated with previous retouch.
+ 5. Retouching selected artefacts and returning them to the accumulating assemblage.
+ 6. Allowing repeated reuse and modification through time.
 
-The application allows users to explore how assumptions about artefact selection and retouch behaviour influence assemblage-level retouch frequencies.
+The application allows users to explore how assumptions about artefact selection, reuse, and retouch behaviour influence assemblage-level retouch frequencies.
 
 # Version history
 ## Version 2.0 (current)
@@ -46,6 +48,7 @@ New features
   * k=0 produces uniform selection
   * k=1 produces linear size-based selection
   * k=2 produces cubic size-based selection
+* Retouched artefact penalty parameter governing the probability of selecting previously retouched artefacts.
 * Alternative retouch allocation methods:
   * Fixed proportion of flakes produced per event
   * Fixed number of flakes selected per event
